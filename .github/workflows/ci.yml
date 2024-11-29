@@ -1,12 +1,10 @@
 name: Build and Test
 
 on:
-  push:
-    branches:
-      - workflow
+  workflow_dispatch:
 
 jobs:
-  winos-test:
+  winos-test-rust-coreutils:
     runs-on: windows-latest
     env:
       VFLAGS: -cc tcc
@@ -30,7 +28,7 @@ jobs:
           echo "adding '${PWD}' to PATH"
           echo "${PWD}" >> $GITHUB_PATH
       - name: Download uutils/coreutils (release 0.0.28)
-        uses: engineerd/configurator@v0.0.10
+        uses: engineerd/configurator@v0.0.8
         with:
           name: 'coreutils.exe'
           url: 'https://github.com/uutils/coreutils/releases/download/0.0.28/coreutils-0.0.28-x86_64-pc-windows-msvc.zip'
