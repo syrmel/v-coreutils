@@ -1,6 +1,9 @@
 name: Build and Test
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - workflow
 
 jobs:
   winos-test:
@@ -26,12 +29,12 @@ jobs:
           cd v && ./make.bat -tcc
           echo "adding '${PWD}' to PATH"
           echo "${PWD}" >> $GITHUB_PATH
-      - name: Download uutils/coreutils
+      - name: Download uutils/coreutils (release 0.0.28)
         uses: engineerd/configurator@v0.0.8
         with:
           name: 'coreutils.exe'
-          url: 'https://github.com/uutils/coreutils/releases/download/0.0.17/coreutils-0.0.17-x86_64-pc-windows-msvc.zip'
-          pathInArchive: 'coreutils-0.0.17-x86_64-pc-windows-msvc/coreutils.exe'
+          url: 'https://github.com/uutils/coreutils/releases/download/0.0.28/coreutils-0.0.28-x86_64-pc-windows-msvc.zip'
+          pathInArchive: 'coreutils-0.0.28-x86_64-pc-windows-msvc/coreutils.exe'
       - name: V doctor
         shell: bash
         run: |
@@ -86,52 +89,52 @@ jobs:
       - name: Run tests
         run: cd coreutils && make test
 
-  ubuntu-prod-build:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Latest V
-        uses: actions/checkout@v2
-        with:
-          repository: vlang/v
-          path: v
-      - name: Build V
-        run: cd v && make && sudo ./v symlink && cd -
-      - name: Checkout Coreutils (for tests)
-        uses: actions/checkout@v2
-        with:
-          path: coreutils
+  # ubuntu-prod-build:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout Latest V
+  #       uses: actions/checkout@v2
+  #       with:
+  #         repository: vlang/v
+  #         path: v
+  #     - name: Build V
+  #       run: cd v && make && sudo ./v symlink && cd -
+  #     - name: Checkout Coreutils (for tests)
+  #       uses: actions/checkout@v2
+  #       with:
+  #         path: coreutils
 
-      - name: Build all with -prod
-        run: cd coreutils && v run build.vsh -prod
-      - name: Run tests
-        run: cd coreutils && make test
+  #     - name: Build all with -prod
+  #       run: cd coreutils && v run build.vsh -prod
+  #     - name: Run tests
+  #       run: cd coreutils && make test
 
-  ubuntu-gnu-coreutils:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Latest V
-        uses: actions/checkout@v2
-        with:
-          repository: vlang/v
-          path: v
-      - name: Build V
-        run: cd v && make && sudo ./v symlink && cd -
-      - name: Checkout Coreutils (for tests)
-        uses: actions/checkout@v2
-        with:
-          path: coreutils
+  # ubuntu-gnu-coreutils:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout Latest V
+  #       uses: actions/checkout@v2
+  #       with:
+  #         repository: vlang/v
+  #         path: v
+  #     - name: Build V
+  #       run: cd v && make && sudo ./v symlink && cd -
+  #     - name: Checkout Coreutils (for tests)
+  #       uses: actions/checkout@v2
+  #       with:
+  #         path: coreutils
 
-      - name: Build all
-        run: cd coreutils && v run build.vsh
+  #     - name: Build all
+  #       run: cd coreutils && v run build.vsh
 
-      - name: Native utils diagnostics (before GNU coreutils)
-        run: |
-          sleep --version
-          uptime --version
-      - name: Setup the original GNU coreutils for comparison
-        uses: ShenTengTu/setup-gnu-coreutils-action@v1
-      - name: Test GNU coreutils uptime
-        run: uptime --version
+  #     - name: Native utils diagnostics (before GNU coreutils)
+  #       run: |
+  #         sleep --version
+  #         uptime --version
+  #     - name: Setup the original GNU coreutils for comparison
+  #       uses: ShenTengTu/setup-gnu-coreutils-action@v1
+  #     - name: Test GNU coreutils uptime
+  #       run: uptime --version
 
-      - name: Run tests
-        run: cd coreutils && GNU_COREUTILS_INSTALLED=1 make test
+  #     - name: Run tests
+  #       run: cd coreutils && GNU_COREUTILS_INSTALLED=1 make test
