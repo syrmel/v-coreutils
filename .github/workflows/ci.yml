@@ -27,17 +27,85 @@ jobs:
           cd v && ./make.bat -tcc
           echo "adding '${PWD}' to PATH"
           echo "${PWD}" >> $GITHUB_PATH
-      - name: Download uutils/coreutils (release 0.0.28)
+      - name: Download uutils/coreutils (release 0.0.17)
         uses: engineerd/configurator@v0.0.8
         with:
           name: 'coreutils.exe'
-          url: 'https://github.com/uutils/coreutils/releases/download/0.0.28/coreutils-0.0.28-x86_64-pc-windows-msvc.zip'
-          pathInArchive: 'coreutils-0.0.28-x86_64-pc-windows-msvc/coreutils.exe'
+          url: 'https://github.com/uutils/coreutils/releases/download/0.0.17/coreutils-0.0.17-x86_64-pc-windows-msvc.zip'
+          pathInArchive: 'coreutils-0.0.17-x86_64-pc-windows-msvc/coreutils.exe'
       - name: V doctor
         shell: bash
         run: |
           # V doctor
           v doctor
+      - name: Info
+        shell: bash
+        run: |
+          ## Info
+          # environment
+          echo "## environment"
+          echo "CI='${CI}'"
+          # tooling info display
+          echo "## testing/tooling"
+          coreutils
+          which tcc >/dev/null 2>&1 && (tcc --version | head -1) || true
+          v --version
+      - name: Build all
+        shell: bash
+        run: |
+          # Build all
+          cd coreutils && v build.vsh
+      - name: Run tests
+        shell: bash
+        run: |
+          # Run tests
+          cd coreutils && v test .
+
+  winos-test-gnu-coreutils:
+    runs-on: windows-latest
+    env:
+      VFLAGS: -cc tcc
+      VJOBS: 1
+      VTEST_SHOW_START: 1
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          path: coreutils
+      - name: Checkout Latest V
+        uses: actions/checkout@v2
+        with:
+          repository: vlang/v
+          path: v
+      - name: Build V
+        shell: bash
+        run: |
+          # Build V
+          cd v && ./make.bat -tcc
+          echo "adding '${PWD}' to PATH"
+          echo "${PWD}" >> $GITHUB_PATH
+      - name: V doctor
+        shell: bash
+        run: |
+          # V doctor
+          v doctor
+      - name: Download
+        shell: powershell
+        run: |
+          Invoke-WebRequest -Uri https://georgmeyer.ch/download/coreutils-8.32-x64-win.zip -OutFile coreutils.zip
+      - name: Extract
+        shell: powershell
+        run: |
+          $wd = Get-Location
+          $p = $wd.Path + '/coreutils-8.32/bin'
+          Write-Host $p
+          Expand-Archive -Path "coreutils.zip"
+          Add-Content $env:GITHUB_PATH $p
+          Write-Host $env:GITHUB_PATH
+      - name: Testing coreutils
+        run: |
+          seq 1 10
+          seq 1 10 | shuf
       - name: Info
         shell: bash
         run: |
