@@ -30,18 +30,14 @@ pub fn (rig TestRig) call_for_test(args string) os.Result {
 }
 
 pub fn prepare_rig(config TestRigConfig) TestRig {
-	call_util := $if !windows {
-		config.util
-	} $else {
-		'coreutils'
-	}
+	call_util := if use_multi_binary_to_test != '' { use_multi_binary_to_test } else { config.util }
 
 	platform_util_path := os.find_abs_path_of_executable(call_util) or {
 		eprintln("ERROR: Local platform util '${call_util}' not found!")
 		exit(1)
 	}
 
-	platform_util := if call_util == 'coreutils' {
+	platform_util := if use_multi_binary_to_test != '' {
 		'${call_util} ${config.util}'
 	} else {
 		call_util
