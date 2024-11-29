@@ -207,7 +207,7 @@ fn (c HeadCommand) run(mut files []InputFile) {
 	mut open_fails_num := 0
 	for i, mut file in files {
 		file.open() or {
-			eprintln('${name}: ${err.msg}')
+			eprintln('${name}: ${err.msg()}')
 			open_fails_num++
 			continue
 		}
@@ -255,7 +255,7 @@ fn get_files(file_args []string) []InputFile {
 	if file_args.len == 0 || file_args[0] == '-' {
 		files << InputFile{
 			is_stdin: true
-			name: 'stdin'
+			name:     'stdin'
 			file_ptr: os.stdin()
 		}
 		return files
@@ -264,7 +264,7 @@ fn get_files(file_args []string) []InputFile {
 	for _, fa in file_args {
 		files << InputFile{
 			is_stdin: false
-			name: fa
+			name:     fa
 		}
 	}
 	return files
@@ -318,19 +318,19 @@ fn setup_command(args []string) ?(HeadCommand, []InputFile) {
 		success_exit('${name} ${common.coreutils_version()}')
 	}
 
-	file_args := fp.finalize() or { common.exit_with_error_message(name, err.msg) }
+	file_args := fp.finalize() or { common.exit_with_error_message(name, err.msg()) }
 
 	return HeadCommand{
-		bytes_to_read: bytes
-		lines_to_read: lines
-		silent: silent
-		verbose: verbose
+		bytes_to_read:   bytes
+		lines_to_read:   lines
+		silent:          silent
+		verbose:         verbose
 		zero_terminated: zero_terminated
 	}, get_files(file_args)
 }
 
 fn run_head(args []string) {
-	head, mut files := setup_command(args) or { common.exit_with_error_message(name, err.msg) }
+	head, mut files := setup_command(args) or { common.exit_with_error_message(name, err.msg()) }
 
 	head.run(mut files)
 }

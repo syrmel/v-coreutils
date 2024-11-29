@@ -2,25 +2,52 @@
 
 import os // v has a bug that you can't use args
 
-const ignore_dirs = $if windows {
-	[
-		// avoid *nix-dependent utils
-		'nohup',
-		// avoid utmp-dependent utils (WinOS has no utmp support)
+const ignore_dirs = {
+	'windows': [
+		// avoid *nix-dependent utils; the following are excluded
+		// from Win32 GNU coreutils 8.32:
+		'arch',
+		'chgrp',
+		'chmod',
+		'chown',
+		'chroot',
+		'df',
+		'dir',
+		'groups',
+		'hostid',
+		'hostname',
+		'id',
+		'install',
+		'ls',
+		'nice',
+		'pinky',
+		'stat',
+		'stdbuf',
+		'stty',
+		'sync',
+		'timeout',
+		'tty',
+		'vdir',
+		// The following are excluded because utmp-dependent
+		// (and also not part of Win32 GNU coreutils):
 		'uptime',
 		'users',
 		'who',
+		// TODO: nohup is included in Win32 version
+		'nohup',
 	]
-} $else {
-	[]string{}
-}
+	'macos':   ['stat', 'sync', 'uptime']
+}[os.user_os()] or { [] }
+
+dump(os.user_os())
+dump(ignore_dirs)
 
 vargs := if os.args.len > 1 { os.args[1..] } else { []string{} }
 
 curdir := getwd()
 chdir('src')!
 
-dirs := ls('.')!.filter(is_dir(it))
+dirs := ls('.')!.filter(is_dir(it)).sorted()
 
 if !exists('${curdir}/bin') {
 	mkdir('${curdir}/bin')!

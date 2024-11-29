@@ -25,10 +25,10 @@ mut:
 
 fn new_folder(width int, count_bytes bool, break_at_spaces bool) Folder {
 	return Folder{
-		max_width: width
-		count_bytes: count_bytes
+		max_width:       width
+		count_bytes:     count_bytes
 		break_at_spaces: break_at_spaces
-		output_buf: strings.new_builder(buf_size)
+		output_buf:      strings.new_builder(buf_size)
 	}
 }
 
@@ -142,7 +142,7 @@ fn (c FoldCommand) run(mut files []InputFile) {
 	mut open_fails_num := 0
 	for mut file in files {
 		file.open() or {
-			eprintln('${name}: ${err.msg}')
+			eprintln('${name}: ${err.msg()}')
 			open_fails_num++
 			continue
 		}
@@ -190,8 +190,8 @@ fn get_files(file_args []string) []InputFile {
 	if file_args.len == 0 || file_args[0] == '-' {
 		files << InputFile{
 			is_stdin: true
-			name: 'stdin'
-			file: os.stdin()
+			name:     'stdin'
+			file:     os.stdin()
 		}
 		return files
 	}
@@ -199,7 +199,7 @@ fn get_files(file_args []string) []InputFile {
 	for _, fa in file_args {
 		files << InputFile{
 			is_stdin: false
-			name: fa
+			name:     fa
 		}
 	}
 	return files
@@ -225,11 +225,11 @@ fn run_fold(args []string) {
 		success_exit('${name} ${common.coreutils_version()}')
 	}
 
-	file_args := fp.finalize() or { common.exit_with_error_message(name, err.msg) }
+	file_args := fp.finalize() or { common.exit_with_error_message(name, err.msg()) }
 
 	cmd := FoldCommand{
-		max_col_width: width
-		break_at_spaces: spaces
+		max_col_width:                    width
+		break_at_spaces:                  spaces
 		count_bytes_ignore_control_chars: bytes
 	}
 
